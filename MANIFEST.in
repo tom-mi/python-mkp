@@ -1,0 +1,3 @@
+include README.md
+include versioneer.py
+include mkp/_version.py
