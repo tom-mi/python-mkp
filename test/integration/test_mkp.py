@@ -17,6 +17,15 @@ def test_load_bytes(original_mkp_file):
     assert package.info['title'] == 'Title of test'
 
 
+def test_load_file(original_mkp_file, tmpdir):
+    tmpdir.join('test.mkp').write_binary(original_mkp_file)
+
+    package = mkp.load_file(str(tmpdir.join('test.mkp')))
+
+    assert type(package) == mkp.Package
+    assert package.info['title'] == 'Title of test'
+
+
 def test_extract_files(original_mkp_file, tmpdir):
     package = mkp.load_bytes(original_mkp_file)
 
@@ -38,6 +47,31 @@ def test_pack_to_bytes(tmpdir):
 
     bytes_io = io.BytesIO(data)
     archive = tarfile.open(fileobj=bytes_io)
+
+    info_file = archive.extractfile('info').read()
+    extracted_info = ast.literal_eval(info_file.decode())
+    assert extracted_info['files'] == info['files']
+    assert extracted_info['title'] == info['title']
+    assert extracted_info['version.packaged'] == 'python-mkp'
+
+    agents_archive_file = archive.extractfile('agents.tar')
+    agents_archive = tarfile.open(fileobj=agents_archive_file, mode='r:')
+    agent_file = agents_archive.extractfile('special/agent_test')
+    assert agent_file.read() == b'hello'
+
+
+def test_pack_to_file(tmpdir):
+    info = {
+        'files': {'agents': ['special/agent_test']},
+        'title': 'Test package',
+    }
+    tmpdir.join('agents', 'special', 'agent_test').write_binary(b'hello', ensure=True)
+
+    outfile = tmpdir.join('test.mkp')
+
+    mkp.pack_to_file(info, str(tmpdir), str(outfile))
+
+    archive = tarfile.open(str(outfile))
 
     info_file = archive.extractfile('info').read()
     extracted_info = ast.literal_eval(info_file.decode())

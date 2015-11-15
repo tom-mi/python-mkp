@@ -19,6 +19,11 @@ _DIRECTORIES = [
 _VERSION_PACKAGED = 'python-mkp'
 
 
+def load_file(path):
+    file_io = open(path, 'rb')
+    return Package(file_io)
+
+
 def load_bytes(data):
     bytes_io = io.BytesIO(data)
     return Package(bytes_io)
@@ -49,11 +54,16 @@ def _find_files_in_directory(path):
     return result
 
 
+def pack_to_file(info, path, outfile):
+    with open(outfile, 'wb') as f:
+        f.write(pack_to_bytes(info, path))
+
+
 def pack_to_bytes(info, path):
     _patch_info(info)
     bytes_io = io.BytesIO()
     with tarfile.open(fileobj=bytes_io, mode='w:gz') as archive:
-        info_data = pprint.pformat(info).encode()
+        info_data = encode_info(info)
         tarinfo, fileobj = _create_tarinfo_and_buffer(info_data, 'info')
         archive.addfile(tarinfo, fileobj=fileobj)
 
@@ -89,15 +99,23 @@ def _create_tarinfo_and_buffer(data, filename):
     return tarinfo, bytes_io
 
 
+def encode_info(info):
+    return pprint.pformat(info).encode()
+
+
+def decode_info(info_bytes):
+    return ast.literal_eval(info_bytes.decode())
+
+
 class Package(object):
 
     def __init__(self, fileobj):
         self.archive = tarfile.open(fileobj=fileobj)
-        self._info = self._load_info()
+        self._info = self._get_info()
 
-    def _load_info(self):
+    def _get_info(self):
         info_file = self.archive.extractfile('info')
-        return ast.literal_eval(info_file.read().decode())
+        return decode_info(info_file.read())
 
     @property
     def info(self):
