@@ -1,5 +1,3 @@
-import sys
-
 from setuptools import find_packages, setup
 import versioneer
 
@@ -13,19 +11,13 @@ def read_md(filename):
         return open(filename, 'r').read()
 
 
-install_requirements = []
-if sys.version_info < (3, 4):
-    install_requirements.append('enum34')
-
-
 setup(
     name='mkp',
     version=versioneer.get_version(),
     url='https://github.com/tom-mi/python-mkp/',
     license='GPLv2',
     author='Thomas Reifenberger',
-    tests_require=['pytest'],
-    install_requires=install_requirements,
+    install_requires=[],
     author_email='tom-mi at rfnbrgr.de',
     description='Pack and unpack Check_MK mkp files',
     long_description=read_md('README.md'),
