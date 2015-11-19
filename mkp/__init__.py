@@ -19,6 +19,24 @@ _DIRECTORIES = [
 _VERSION_PACKAGED = 'python-mkp'
 
 
+_DIST_DIR = 'dist'
+
+
+def dist(info, path=None):
+    if not path:
+        import __main__ as main
+        path = os.path.dirname(os.path.realpath(main.__file__))
+
+    info['files'] = find_files(path)
+    dist_dir = os.path.join(path, _DIST_DIR)
+    filename = '{}-{}.mkp'.format(info['name'], info['version'])
+
+    if not os.path.exists(dist_dir):
+        os.makedirs(dist_dir)
+
+    pack_to_file(info, path, os.path.join(dist_dir, filename))
+
+
 def load_file(path):
     file_io = open(path, 'rb')
     return Package(file_io)

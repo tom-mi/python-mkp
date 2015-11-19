@@ -128,3 +128,54 @@ def test_pack_and_unpack_covers_all_known_directories(tmpdir):
 
     for directory in DIRECTORIES:
         assert dest.join(directory, 'test').exists()
+
+
+def test_dist(tmpdir):
+    tmpdir.join('agents', 'special', 'agent_test').write_binary(b'hello', ensure=True)
+    tmpdir.join('checks', 'foo').write_binary(b'Check Me!', ensure=True)
+    info = {
+        'author': 'John Doe',
+        'name': 'foo',
+        'version': '42',
+    }
+
+    mkp.dist(info, str(tmpdir))
+
+    assert tmpdir.join('dist', 'foo-42.mkp').exists()
+    package = mkp.load_file(str(tmpdir.join('dist', 'foo-42.mkp')))
+    assert package.info['author'] == 'John Doe'
+    assert package.info['name'] == 'foo'
+    assert package.info['files']['agents'] == ['special/agent_test']
+    assert package.info['files']['checks'] == ['foo']
+    assert package.info['version'] == '42'
+    assert package.info['version.packaged'] == 'python-mkp'
+
+
+def test_dist_uses_script_path_when_no_path_is_given(tmpdir):
+
+    script = tmpdir.join('dist.py')
+    script.write_text(u'''#!/usr/bin/env python
+
+from mkp import dist
+
+
+dist({
+    'author': 'John Doe',
+    'name': 'foo',
+    'version': '42',
+})
+''', 'utf-8')
+    script.chmod(0700)
+    tmpdir.join('agents', 'special', 'agent_test').write_binary(b'hello', ensure=True)
+    tmpdir.join('checks', 'foo').write_binary(b'Check Me!', ensure=True)
+
+    script.sysexec()
+
+    assert tmpdir.join('dist', 'foo-42.mkp').exists()
+    package = mkp.load_file(str(tmpdir.join('dist', 'foo-42.mkp')))
+    assert package.info['author'] == 'John Doe'
+    assert package.info['name'] == 'foo'
+    assert package.info['files']['agents'] == ['special/agent_test']
+    assert package.info['files']['checks'] == ['foo']
+    assert package.info['version'] == '42'
+    assert package.info['version.packaged'] == 'python-mkp'
