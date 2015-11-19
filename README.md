@@ -4,6 +4,7 @@
 
 Pack or unpack [Check_MK](https://mathias-kettner.de/check_mk.html) mkp files.
 
+The purpose of this library is to generate mkp files from source without having to set up a complete Check\_MK instance. It is not intended for installing mkp files to a Check\_MK site.
 ## Installation
 
     pip install mkp
@@ -13,7 +14,7 @@ Pack or unpack [Check_MK](https://mathias-kettner.de/check_mk.html) mkp files.
 ### Extract mkp package
 
     import mkp
-  
+
     package = mkp.load_file('foo-1.0.mkp')
     print(package.info)
     package.extract_files('path/to/somewhere')
@@ -21,7 +22,7 @@ Pack or unpack [Check_MK](https://mathias-kettner.de/check_mk.html) mkp files.
 ### Pack files to mkp package
 
     import mkp
-    
+
     info = {
       'author': 'tom-mi',
       'description': 'Test the system',
