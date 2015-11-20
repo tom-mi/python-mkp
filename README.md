@@ -41,7 +41,7 @@ Create a directory structure as follows:
     ├── web/
     └── dist.py
 
-Empty directories can be omitted. Running `check.py` will pack all files in the
+Empty directories can be omitted. Running `dist.py` will pack all files in the
 directories listed above to a mkp package with the canonical name and the
 specified metadata. The mkp file will be written to the `dist` directory.
 
