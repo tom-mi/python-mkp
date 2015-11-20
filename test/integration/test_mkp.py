@@ -165,7 +165,7 @@ dist({
     'version': '42',
 })
 ''', 'utf-8')
-    script.chmod(0700)
+    script.chmod(0o700)
     tmpdir.join('agents', 'special', 'agent_test').write_binary(b'hello', ensure=True)
     tmpdir.join('checks', 'foo').write_binary(b'Check Me!', ensure=True)
 
