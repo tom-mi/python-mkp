@@ -8,8 +8,42 @@ The purpose of this library is to generate mkp files from source without having 
 ## Installation
 
     pip install mkp
-  
+
 ## Usage
+
+### Automatically pack mkp package
+
+Create a executable script in the the top directory, e.g. `dist.py`
+
+    #!/usr/bin/env python
+
+    from mkp import dist
+
+    dist({
+        'author': 'John Doe',
+        'description': 'Test the automatic creation of packages',
+        'download_url': 'http://example.com/',
+        'name': 'test',
+        'title': 'Test',
+        'version': '1.0',
+        'version.min_required': '1.2.3',
+    })
+
+Create a directory structure as follows:
+
+    ├── agents/
+    ├── checkman/
+    ├── checks/
+    ├── doc/
+    ├── inventory/
+    ├── notifications/
+    ├── pnp-templates/
+    ├── web/
+    └── dist.py
+
+Empty directories can be omitted. Running `check.py` will pack all files in the
+directories listed above to a mkp package with the canonical name and the
+specified metadata. The mkp file will be written to the `dist` directory.
 
 ### Extract mkp package
 
@@ -20,6 +54,10 @@ The purpose of this library is to generate mkp files from source without having 
     package.extract_files('path/to/somewhere')
 
 ### Pack files to mkp package
+
+In contrast to `dist`, this provides the possibility to manually select the
+files by replacing `find_files`. It is also possible to choose a different
+output filename.
 
     import mkp
 
