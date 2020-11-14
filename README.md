@@ -1,7 +1,8 @@
 # python-mkp
 
 ![ci](https://github.com/tom-mi/python-mkp/workflows/ci/badge.svg)
-![release](https://github.com/tom-mi/python-mkp/workflows/release/badge.svg?event=release)
+![release](https://github.com/tom-mi/python-mkp/workflows/release/badge.svg)
+[![PyPI version](https://badge.fury.io/py/mkp.svg)](https://badge.fury.io/py/mkp)
 
 Pack or unpack [Check_MK](https://mathias-kettner.de/check_mk.html) mkp files.
 
