@@ -18,7 +18,7 @@ setup(
     license='GPLv2',
     author='Thomas Reifenberger',
     install_requires=[],
-    author_email='tom-mi at rfnbrgr.de',
+    author_email='tom-mi@users.noreply.github.com',
     description='Pack and unpack Check_MK mkp files',
     long_description=read_md('README.md'),
     packages=find_packages(),
