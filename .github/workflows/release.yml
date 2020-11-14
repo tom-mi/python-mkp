@@ -28,4 +28,4 @@ jobs:
         run: |
           pipenv run pytest
           pipenv run python setup.py bdist_wheel
-          twine upload dist/*
+          pipenv run twine upload dist/*
