@@ -2,15 +2,6 @@ from setuptools import find_packages, setup
 import versioneer
 
 
-def read_md(filename):
-    try:
-        from pypandoc import convert
-        return convert(filename, 'rst')
-    except ImportError:
-        print("warning: pypandoc module not found, could not convert Markdown to RST")
-        return open(filename, 'r').read()
-
-
 setup(
     name='mkp',
     version=versioneer.get_version(),
@@ -20,7 +11,8 @@ setup(
     install_requires=[],
     author_email='tom-mi@users.noreply.github.com',
     description='Pack and unpack Check_MK mkp files',
-    long_description=read_md('README.md'),
+    long_description=open('README.md', 'r').read(),
+    long_description_content_type='text/markdown',
     packages=find_packages(),
     platforms='any',
     classifiers=[
