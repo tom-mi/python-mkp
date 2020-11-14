@@ -27,34 +27,6 @@ def sample_info():
         'version.min_required': '1.2.6p5',
         'version.usable_until': None,
     }
-
-
-def test_load_bytes(original_mkp_file):
-    package = mkp.load_bytes(original_mkp_file)
-
-    assert type(package) == mkp.Package
-    assert package.info['title'] == 'Title of test'
-
-
-def test_load_file(original_mkp_file, tmpdir):
-    tmpdir.join('test.mkp').write_binary(original_mkp_file)
-
-    package = mkp.load_file(str(tmpdir.join('test.mkp')))
-
-    assert type(package) == mkp.Package
-    assert package.info['title'] == 'Title of test'
-
-
-def test_extract_files(original_mkp_file, tmpdir):
-    package = mkp.load_bytes(original_mkp_file)
-
-    package.extract_files(str(tmpdir))
-
-    assert tmpdir.join('agents', 'special', 'agent_test').exists()
-    assert tmpdir.join('checkman', 'test').exists()
-    assert tmpdir.join('checkman', 'test').open().read() == 'title: Hello World!\n'
-
-
 def test_pack_to_bytes(tmpdir):
     info = {
         'files': {'agents': ['special/agent_test']},

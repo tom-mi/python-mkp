@@ -1,27 +1,21 @@
-import binascii
+import os
+
 import pytest
+
+TEST_DIR = os.path.dirname(__file__)
 
 
 @pytest.fixture()
 def original_mkp_file():
-    return _unhexlify('''
-    1f8b0808191c475602ff746573742d312e302e6d6b7000eddb416f9b3014c0f19cf3295cedc0650b
-    8104225551a4dd76dc61d20ed31439e034a8809971da5553bffb6cdab4a44b35696ab255fbff1409
-    f4fc20d806737914f55a0f8e6ceca4d369b7759e6ea3f1381e44711a4769948e27d1c047926820c6
-    8313d8b6561a215ea493fdcebd123f02b9b51b6d827311bccf7371a3b746d4b25262a38c0ade0e45
-    90ab363345630b5dfbac8fa592ad12d2254bd16beb1da0afeb52cb7cb935a53f62636d731e86eabb
-    ac9a528d325d8556b536ec92d745a95a97e52ee442d5d6ef7e09da4665852cc32eb4f4c9c15797fc
-    28c8362abbac64dda53f9bd09ded4943aeb303d1a2be727fa5cdcd81b65adb625d64d2f7f2d0199b
-    ba796795eb9bb4ea50fbb55a75d15bdf5f3fb67e50ba6bee02db6ab91b84d8076c61cb2ee593df11
-    7a2d1e72af9469efa7211a8dfba15155d44ba3be6d0ba3f2bbf6789436c95e4e23b34b37a47bedb7
-    03fcc776cfd1c8ad827f67fd8fa77e7f7ffd8fa6c98cf5ff14fcd272c2f77f92cea2fe76770bece6
-    dffd266efe27936472e2f9d755be34eb7a652e0e3f07bf6b7fa5ba97cdb9f8a0ca528bcfda94f9d9
-    90551100000000000000000000000000fe7d7745d7c7acfefca3facf28a5fef3247eadb43fcefccf
-    92e4f9facff4e1fb8fd8dd0d6efed388facfd3787316ae8a3a5cc9763354d9468b603e9ffbdb60b1
-    5804f7917e7168407528000000000000000000000000000000000000000000000000f0627e02d592
-    a66f00780000
-    ''')
+    return _test_file('test_original.mkp')
 
 
-def _unhexlify(data):
-    return binascii.unhexlify(data.replace(' ', '').replace('\n', ''))
+@pytest.fixture()
+def original_mkp_file_with_info_json():
+    return _test_file('test_original_with_info_json.mkp')
+
+
+def _test_file(filename):
+    path = os.path.join(TEST_DIR, filename)
+    with open(path, 'rb') as f:
+        return f.read()
