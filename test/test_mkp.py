@@ -27,6 +27,8 @@ def sample_info():
         'version.min_required': '1.2.6p5',
         'version.usable_until': None,
     }
+
+
 def test_pack_to_bytes(tmpdir):
     info = {
         'files': {'agents': ['special/agent_test']},
