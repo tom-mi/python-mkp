@@ -81,9 +81,7 @@ def pack_to_bytes(info, path):
     _patch_info(info)
     bytes_io = io.BytesIO()
     with tarfile.open(fileobj=bytes_io, mode='w:gz') as archive:
-        info_data = encode_info(info)
-        tarinfo, fileobj = _create_tarinfo_and_buffer(info_data, 'info')
-        archive.addfile(tarinfo, fileobj=fileobj)
+        _add_to_archive(archive, 'info', encode_info(info))
 
         for directory in _DIRECTORIES:
             files = info['files'].get(directory, [])
@@ -91,8 +89,7 @@ def pack_to_bytes(info, path):
                 continue
 
             directory_archive = _create_directory_archive(os.path.join(path, directory), files)
-            tarinfo, fileobj = _create_tarinfo_and_buffer(directory_archive, directory + '.tar')
-            archive.addfile(tarinfo, fileobj)
+            _add_to_archive(archive, directory + '.tar', directory_archive)
 
     return bytes_io.getvalue()
 
@@ -108,6 +105,11 @@ def _create_directory_archive(path, files):
             archive.add(os.path.join(path, filename), arcname=filename)
 
     return bytes_io.getvalue()
+
+
+def _add_to_archive(archive, filename, data):
+    tarinfo, fileobj = _create_tarinfo_and_buffer(data, filename)
+    archive.addfile(tarinfo, fileobj=fileobj)
 
 
 def _create_tarinfo_and_buffer(data, filename):
