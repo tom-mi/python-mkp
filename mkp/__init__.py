@@ -1,23 +1,22 @@
 import ast
 import io
+import json
 import os
 import os.path
 import pprint
 import tarfile
 
 from ._version import get_versions
+
 __version__ = get_versions()['version']
 del get_versions
-
 
 _DIRECTORIES = [
     'agents', 'checkman', 'checks', 'doc', 'inventory', 'notifications',
     'pnp-templates', 'web',
 ]
 
-
 _VERSION_PACKAGED = 'python-mkp'
-
 
 _DIST_DIR = 'dist'
 
@@ -83,6 +82,7 @@ def pack_to_bytes(info, path):
     bytes_io = io.BytesIO()
     with tarfile.open(fileobj=bytes_io, mode='w:gz') as archive:
         _add_to_archive(archive, 'info', encode_info(info))
+        _add_to_archive(archive, 'info.json', encode_info_json(info))
 
         for directory in _DIRECTORIES:
             files = info['files'].get(directory, [])
@@ -124,6 +124,10 @@ def encode_info(info):
     return pprint.pformat(info).encode()
 
 
+def encode_info_json(info):
+    return json.dumps(info).encode()
+
+
 def decode_info(info_bytes):
     return ast.literal_eval(info_bytes.decode())
 
@@ -133,14 +137,26 @@ class Package(object):
     def __init__(self, fileobj):
         self.archive = tarfile.open(fileobj=fileobj)
         self._info = self._get_info()
+        self._json_info = self._get_json_info()
 
     def _get_info(self):
         info_file = self.archive.extractfile('info')
         return decode_info(info_file.read())
 
+    def _get_json_info(self):
+        try:
+            info_file = self.archive.extractfile('info.json')
+            return json.loads(info_file.read())
+        except KeyError:
+            return None
+
     @property
     def info(self):
         return self._info
+
+    @property
+    def json_info(self):
+        return self._json_info
 
     def extract_files(self, path):
         for directory in _DIRECTORIES:

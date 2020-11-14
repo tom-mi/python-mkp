@@ -2,12 +2,31 @@ import ast
 import io
 import tarfile
 
+import pytest
+
 import mkp
 
 DIRECTORIES = [
     'agents', 'checkman', 'checks', 'doc', 'inventory', 'notifications',
     'pnp-templates', 'web',
 ]
+
+
+@pytest.fixture
+def sample_files(tmpdir):
+    tmpdir.join('agents', 'special', 'agent_test').write_binary(b'hello', ensure=True)
+    tmpdir.join('checks', 'foo').write_binary(b'Check Me!', ensure=True)
+
+
+@pytest.fixture
+def sample_info():
+    return {
+        'author': 'John Doe',
+        'name': 'foo',
+        'version': '42',
+        'version.min_required': '1.2.6p5',
+        'version.usable_until': None,
+    }
 
 
 def test_load_bytes(original_mkp_file):
@@ -130,18 +149,8 @@ def test_pack_and_unpack_covers_all_known_directories(tmpdir):
         assert dest.join(directory, 'test').exists()
 
 
-def test_dist(tmpdir):
-    tmpdir.join('agents', 'special', 'agent_test').write_binary(b'hello', ensure=True)
-    tmpdir.join('checks', 'foo').write_binary(b'Check Me!', ensure=True)
-    info = {
-        'author': 'John Doe',
-        'name': 'foo',
-        'version': '42',
-        'version.min_required': '1.2.6p5',
-        'version.usable_until': None,
-    }
-
-    mkp.dist(info, str(tmpdir))
+def test_dist(tmpdir, sample_files, sample_info):
+    mkp.dist(sample_info, str(tmpdir))
 
     assert tmpdir.join('dist', 'foo-42.mkp').exists()
     package = mkp.load_file(str(tmpdir.join('dist', 'foo-42.mkp')))
@@ -156,8 +165,23 @@ def test_dist(tmpdir):
     assert package.info['version.usable_until'] is None
 
 
-def test_dist_uses_script_path_when_no_path_is_given(tmpdir):
+def test_dist_json(tmpdir, sample_files, sample_info):
+    mkp.dist(sample_info, str(tmpdir))
 
+    assert tmpdir.join('dist', 'foo-42.mkp').exists()
+    package = mkp.load_file(str(tmpdir.join('dist', 'foo-42.mkp')))
+    assert package.json_info['author'] == 'John Doe'
+    assert package.json_info['name'] == 'foo'
+    assert package.json_info['files']['agents'] == ['special/agent_test']
+    assert package.json_info['files']['checks'] == ['foo']
+    assert package.json_info['num_files'] == 2
+    assert package.json_info['version'] == '42'
+    assert package.json_info['version.packaged'] == 'python-mkp'
+    assert package.json_info['version.min_required'] == '1.2.6p5'
+    assert package.json_info['version.usable_until'] is None
+
+
+def test_dist_uses_script_path_when_no_path_is_given(tmpdir):
     script = tmpdir.join('dist.py')
     script.write_text(u'''#!/usr/bin/env python
 
