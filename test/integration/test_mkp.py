@@ -177,5 +177,5 @@ dist({
     assert package.info['name'] == 'foo'
     assert package.info['files']['agents'] == ['special/agent_test']
     assert package.info['files']['checks'] == ['foo']
-    assert package.info['version'] == '43'
+    assert package.info['version'] == '42'
     assert package.info['version.packaged'] == 'python-mkp'
