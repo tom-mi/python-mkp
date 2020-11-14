@@ -1,6 +1,7 @@
 # python-mkp
 
-[![Build Status](https://travis-ci.org/tom-mi/python-mkp.svg?branch=master)](https://travis-ci.org/tom-mi/python-mkp)
+![ci](https://github.com/tom-mi/python-mkp/workflows/ci/badge.svg)
+![release](https://github.com/tom-mi/python-mkp/workflows/release/badge.svg?event=release)
 
 Pack or unpack [Check_MK](https://mathias-kettner.de/check_mk.html) mkp files.
 
