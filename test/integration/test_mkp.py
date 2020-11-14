@@ -137,6 +137,8 @@ def test_dist(tmpdir):
         'author': 'John Doe',
         'name': 'foo',
         'version': '42',
+        'version.min_required': '1.2.6p5',
+        'version.usable_until': None,
     }
 
     mkp.dist(info, str(tmpdir))
@@ -147,8 +149,11 @@ def test_dist(tmpdir):
     assert package.info['name'] == 'foo'
     assert package.info['files']['agents'] == ['special/agent_test']
     assert package.info['files']['checks'] == ['foo']
+    assert package.info['num_files'] == 2
     assert package.info['version'] == '42'
     assert package.info['version.packaged'] == 'python-mkp'
+    assert package.info['version.min_required'] == '1.2.6p5'
+    assert package.info['version.usable_until'] is None
 
 
 def test_dist_uses_script_path_when_no_path_is_given(tmpdir):
@@ -179,3 +184,4 @@ dist({
     assert package.info['files']['checks'] == ['foo']
     assert package.info['version'] == '42'
     assert package.info['version.packaged'] == 'python-mkp'
+    assert package.info['num_files'] == 2

@@ -28,6 +28,7 @@ def dist(info, path=None):
         path = os.path.dirname(os.path.realpath(main.__file__))
 
     info['files'] = find_files(path)
+    info['num_files'] = sum(len(file_list) for file_list in info['files'].values())
     dist_dir = os.path.join(path, _DIST_DIR)
     filename = '{}-{}.mkp'.format(info['name'], info['version'])
 
