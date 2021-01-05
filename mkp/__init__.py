@@ -5,6 +5,7 @@ import os
 import os.path
 import pprint
 import tarfile
+import re
 
 from ._version import get_versions
 
@@ -21,12 +22,12 @@ _VERSION_PACKAGED = 'python-mkp'
 _DIST_DIR = 'dist'
 
 
-def dist(info, path=None):
+def dist(info, path=None, blacklist=[]):
     if not path:
         import __main__ as main
         path = os.path.dirname(os.path.realpath(main.__file__))
 
-    info['files'] = find_files(path)
+    info['files'] = find_files(path, blacklist)
     info['num_files'] = sum(len(file_list) for file_list in info['files'].values())
     dist_dir = os.path.join(path, _DIST_DIR)
     filename = '{}-{}.mkp'.format(info['name'], info['version'])
@@ -47,15 +48,15 @@ def load_bytes(data):
     return Package(bytes_io)
 
 
-def find_files(path):
+def find_files(path, blacklist=[]):
     result = {}
     for directory in _DIRECTORIES:
-        result[directory] = _find_files_in_directory(os.path.join(path, directory))
+        result[directory] = _find_files_in_directory(os.path.join(path, directory), blacklist)
 
     return result
 
 
-def _find_files_in_directory(path):
+def _find_files_in_directory(path, blacklist):
     result = []
     for root, dirs, files in os.walk(path):
         for dirname in dirs:
@@ -68,6 +69,8 @@ def _find_files_in_directory(path):
                 continue
             abspath = os.path.join(root, filename)
             relpath = os.path.relpath(abspath, start=path)
+            if any(re.search(pattern, abspath) for pattern in blacklist):
+                continue
             result.append(relpath)
     return result
 
@@ -175,3 +178,4 @@ class Package(object):
         with tarfile.open(fileobj=dir_archive_file) as archive:
             members = [member for member in archive.getmembers() if member.name in files]
             archive.extractall(path=target_path, members=members)
+
