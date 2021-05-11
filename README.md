@@ -34,10 +34,12 @@ Create a executable script in the the top directory, e.g. `dist.py`
 Create a directory structure as follows:
 
     ├── agents/
+    ├── agent_based/
     ├── checkman/
     ├── checks/
     ├── doc/
     ├── inventory/
+    ├── lib/
     ├── notifications/
     ├── pnp-templates/
     ├── web/
