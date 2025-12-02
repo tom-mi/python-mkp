@@ -7,6 +7,7 @@ verify_ssl = true
 pytest = "*"
 wheel = "*"
 twine = "*"
+setuptools = "*"
 
 [dev-local]
 tox = "*"
