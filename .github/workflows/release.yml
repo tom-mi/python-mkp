@@ -8,6 +8,11 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: release
+    if: github.ref == 'refs/heads/master'
+    permissions:
+      # IMPORTANT: this permission is mandatory for Trusted Publishing
+      id-token: write
     steps:
       - uses: actions/checkout@v5
         with:
@@ -21,11 +26,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install pipenv
           pipenv install --dev --deploy
-      - name: Build and publish
-        env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      - name: Build
         run: |
           pipenv run pytest
           pipenv run python setup.py bdist_wheel
-          pipenv run twine upload dist/*
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
