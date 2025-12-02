@@ -8,7 +8,7 @@ import mkp
 
 DIRECTORIES = [
     'agents', 'checkman', 'checks', 'doc', 'inventory', 'notifications',
-    'pnp-templates', 'web',
+    'pnp-templates', 'web', 'lib', 'agent_based',
 ]
 
 
