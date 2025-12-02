@@ -75,6 +75,27 @@ output filename.
     }
     mkp.pack_to_file(info, 'path/to/files', 'test-1.0.mkp')
 
+## Development Setup
+
+Install development dependencies into local environment (`${repo_root}/.venv`):
+```
+scripts/bootstrap
+```
+
+Run all tests with tox:
+```
+scripts/test
+# or
+source .venv/bin/activate
+tox
+```
+
+Run tests of current python version with pytest:
+```
+source .venv/bin/activate
+pytest
+```
+
 ## License
 
 This software is licensed under GPLv2.

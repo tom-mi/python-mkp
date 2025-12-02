@@ -8,5 +8,9 @@ pytest = "*"
 wheel = "*"
 twine = "*"
 
+[dev-local]
+tox = "*"
+versioneer = "*"
+
 [packages]
 mkp = {editable = true, path = "."}
