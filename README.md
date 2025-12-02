@@ -96,6 +96,12 @@ source .venv/bin/activate
 pytest
 ```
 
+Release new version:
+```
+git tag <new_version>
+git push --tags
+```
+
 ## License
 
 This software is licensed under GPLv2.
