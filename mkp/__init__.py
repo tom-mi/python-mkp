@@ -73,9 +73,13 @@ def find_files(path: str, directories: List[str] = DIRECTORIES, exclude_patterns
     result = {}
 
     if isinstance(directories, IncludeAll):
-        directories = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d)) and not d.startswith('.')]
+        directories = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d)) and not d.startswith('.')
+                       and not d == _DIST_DIR]
+    elif _DIST_DIR in directories:
+        raise ValueError('Directory list cannot include "dist"')
 
     for directory in directories:
+        assert directory != _DIST_DIR, "The dist directory cannot be included in the package files."
         files = _find_files_in_directory(os.path.join(path, directory), exclude_patterns=exclude_patterns)
         if files:
             result[directory] = files

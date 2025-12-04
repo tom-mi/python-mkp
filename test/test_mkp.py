@@ -146,6 +146,44 @@ def test_find_files_ignores_hidden_files_and_dirs(tmpdir):
     assert result == {}
 
 
+def test_find_files_skips_the_dist_directory(tmpdir):
+    # given
+    tmpdir.join('agents', 'test').write_binary(b'Foo', ensure=True)
+    tmpdir.join('dist', 'should_not_be_found').write_binary(b'Bar', ensure=True)
+
+    # when
+    result = mkp.find_files(str(tmpdir))
+
+    # then
+    assert result['agents'] == ['test']
+    assert 'dist' not in result
+
+
+def test_find_files_with_include_all_mode_skips_the_dist_directory(tmpdir):
+    # given
+    tmpdir.join('agents', 'test').write_binary(b'Foo', ensure=True)
+    tmpdir.join('custom_dir', 'test').write_binary(b'Foo', ensure=True)
+    tmpdir.join('dist', 'should_not_be_found').write_binary(b'Bar', ensure=True)
+
+    # when
+    result = mkp.find_files(str(tmpdir), directories=mkp.INCLUDE_ALL)
+
+    # then
+    assert result['agents'] == ['test']
+    assert result['custom_dir'] == ['test']
+    assert 'dist' not in result
+
+
+def test_find_files_with_custom_directory_list_fails_if_dist_directory_is_included(tmpdir):
+    # given
+    tmpdir.join('custom_dir', 'test').write_binary(b'Foo', ensure=True)
+    tmpdir.join('dist', 'should_not_be_found').write_binary(b'Bar', ensure=True)
+
+    # when & then
+    with pytest.raises(ValueError, match=r'Directory list cannot include "dist"'):
+        mkp.find_files(str(tmpdir), directories=['custom_dir', 'dist'])
+
+
 def test_find_files_omits_files_matching_an_exclude_pattern(tmpdir):
     # given
     a = re.compile(r'.*\.pyc')
