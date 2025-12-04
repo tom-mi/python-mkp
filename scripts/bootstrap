@@ -4,4 +4,6 @@ set -eu
 
 cd $(dirname "$BASH_SOURCE")/..
 
-PIPENV_VENV_IN_PROJECT=1 pipenv install --dev --categories=dev-local
+# for some reason combining both options does not seem to work
+PIPENV_VENV_IN_PROJECT=1 pipenv sync --dev
+PIPENV_VENV_IN_PROJECT=1 pipenv sync --categories=dev-local
