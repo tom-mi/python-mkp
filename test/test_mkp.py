@@ -96,7 +96,7 @@ def test_find_files_searches_all_directories(tmpdir):
         assert result[directory] == ['test']
 
 
-def test_find_files_ignores_files_outsider_known_directories(tmpdir):
+def test_find_files_ignores_files_outside_known_directories(tmpdir):
     # given
     tmpdir.join('unknown_dir', 'test').write_binary(b'Foo', ensure=True)
 
@@ -104,8 +104,7 @@ def test_find_files_ignores_files_outsider_known_directories(tmpdir):
     result = mkp.find_files(str(tmpdir))
 
     # then
-    for directory in DIRECTORIES:
-        assert result[directory] == []
+    assert result == {}
 
 
 def test_find_files_with_custom_directory_list(tmpdir):
@@ -136,7 +135,7 @@ def test_find_files_ignores_hidden_files_and_dirs(tmpdir):
 
     result = mkp.find_files(str(tmpdir))
 
-    assert result['agents'] == []
+    assert result == {}
 
 
 def test_find_files_omits_files_matching_an_exclude_pattern(tmpdir):
@@ -217,7 +216,7 @@ def test_dist_with_exclude_patterns(tmpdir, sample_files, sample_info):
     assert tmpdir.join('dist', 'foo-42.mkp').exists()
     package = mkp.load_file(str(tmpdir.join('dist', 'foo-42.mkp')))
     assert package.info['author'] == 'John Doe'
-    assert package.info['files']['agents'] == []
+    assert package.info['files'].keys() == {'checks'}
     assert package.info['files']['checks'] == ['foo']
     assert package.info['num_files'] == 1
 
@@ -250,6 +249,22 @@ def test_dist_with_custom_directories(tmpdir, sample_files, sample_info):
     assert package.info['files']['agents'] == ['special/agent_test']
     assert 'checks' not in package.info['files']
     assert package.info['num_files'] == 1
+
+
+def test_dist_omits_empty_directories(tmpdir, sample_files, sample_info):
+    # given
+    tmpdir.join('doc').mkdir()
+
+    # when
+    mkp.dist(sample_info, str(tmpdir), directories=['agents', 'checks', 'doc'])
+
+    # then
+    assert tmpdir.join('dist', 'foo-42.mkp').exists()
+    package = mkp.load_file(str(tmpdir.join('dist', 'foo-42.mkp')))
+    assert package.info['author'] == 'John Doe'
+    assert package.info['files'].keys() == {'agents', 'checks'}
+    with pytest.raises(KeyError):
+        package.archive.getmember('doc.tar')
 
 
 def test_dist_json(tmpdir, sample_files, sample_info):

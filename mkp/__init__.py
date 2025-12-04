@@ -68,7 +68,9 @@ def find_files(path: str, directories: List[str] = DIRECTORIES, exclude_patterns
         directories = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d)) and not d.startswith('.')]
 
     for directory in directories:
-        result[directory] = _find_files_in_directory(os.path.join(path, directory), exclude_patterns=exclude_patterns)
+        files = _find_files_in_directory(os.path.join(path, directory), exclude_patterns=exclude_patterns)
+        if files:
+            result[directory] = files
 
     return result
 
