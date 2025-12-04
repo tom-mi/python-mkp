@@ -6,6 +6,7 @@ import os.path
 import pprint
 import tarfile
 import re
+from typing import List, Tuple, Dict, Any
 
 from ._version import get_versions
 
@@ -22,7 +23,7 @@ _VERSION_PACKAGED = 'python-mkp'
 _DIST_DIR = 'dist'
 
 
-def dist(info, path=None, exclude_patterns=None):
+def dist(info: Dict[str, Any], path: str = None, exclude_patterns: List[str] = None):
     if exclude_patterns is None:
         exclude_patterns = []
 
@@ -41,17 +42,7 @@ def dist(info, path=None, exclude_patterns=None):
     pack_to_file(info, path, os.path.join(dist_dir, filename))
 
 
-def load_file(path):
-    file_io = open(path, 'rb')
-    return Package(file_io)
-
-
-def load_bytes(data):
-    bytes_io = io.BytesIO(data)
-    return Package(bytes_io)
-
-
-def find_files(path, exclude_patterns=None):
+def find_files(path: str, exclude_patterns: List[str] = None):
     if exclude_patterns is None:
         exclude_patterns = []
     result = {}
@@ -61,7 +52,7 @@ def find_files(path, exclude_patterns=None):
     return result
 
 
-def _find_files_in_directory(path, exclude_patterns):
+def _find_files_in_directory(path: str, exclude_patterns: List[str]):
     result = []
     for root, dirs, files in os.walk(path):
         for dirname in dirs:
@@ -80,12 +71,12 @@ def _find_files_in_directory(path, exclude_patterns):
     return result
 
 
-def pack_to_file(info, path, outfile):
+def pack_to_file(info: Dict[str, Any], path: str, outfile: str) -> None:
     with open(outfile, 'wb') as f:
         f.write(pack_to_bytes(info, path))
 
 
-def pack_to_bytes(info, path):
+def pack_to_bytes(info: Dict[str, Any], path: str) -> bytes:
     _patch_info(info)
     bytes_io = io.BytesIO()
     with tarfile.open(fileobj=bytes_io, mode='w:gz') as archive:
@@ -103,11 +94,11 @@ def pack_to_bytes(info, path):
     return bytes_io.getvalue()
 
 
-def _patch_info(info):
+def _patch_info(info: Dict[str, Any]) -> None:
     info['version.packaged'] = _VERSION_PACKAGED
 
 
-def _create_directory_archive(path, files):
+def _create_directory_archive(path: str, files: List[str]) -> bytes:
     bytes_io = io.BytesIO()
     with tarfile.open(fileobj=bytes_io, mode='w') as archive:
         for filename in files:
@@ -116,27 +107,27 @@ def _create_directory_archive(path, files):
     return bytes_io.getvalue()
 
 
-def _add_to_archive(archive, filename, data):
-    tarinfo, fileobj = _create_tarinfo_and_buffer(data, filename)
-    archive.addfile(tarinfo, fileobj=fileobj)
+def _add_to_archive(archive: tarfile.TarFile, filename: str, data: bytes) -> None:
+    tarinfo, file_object = _create_tarinfo_and_buffer(data, filename)
+    archive.addfile(tarinfo, fileobj=file_object)
 
 
-def _create_tarinfo_and_buffer(data, filename):
+def _create_tarinfo_and_buffer(data: bytes, filename: str) -> Tuple[tarfile.TarInfo, io.BytesIO]:
     tarinfo = tarfile.TarInfo(filename)
     tarinfo.size = len(data)
     bytes_io = io.BytesIO(data)
     return tarinfo, bytes_io
 
 
-def encode_info(info):
+def encode_info(info: Dict[str, Any]) -> bytes:
     return pprint.pformat(info).encode()
 
 
-def encode_info_json(info):
+def encode_info_json(info) -> bytes:
     return json.dumps(info).encode()
 
 
-def decode_info(info_bytes):
+def decode_info(info_bytes: bytes) -> Dict[str, Any]:
     return ast.literal_eval(info_bytes.decode())
 
 
@@ -163,14 +154,14 @@ class Package(object):
         return self._info
 
     @property
-    def json_info(self):
+    def json_info(self) -> Dict[str, Any]:
         return self._json_info
 
-    def extract_files(self, path):
+    def extract_files(self, path: str):
         for directory in _DIRECTORIES:
             self._extract_files_in_directory(path, directory)
 
-    def _extract_files_in_directory(self, path, directory):
+    def _extract_files_in_directory(self, path: str, directory: str):
         files = self.info['files'].get(directory, [])
 
         if not files:
@@ -183,3 +174,13 @@ class Package(object):
         with tarfile.open(fileobj=dir_archive_file) as archive:
             members = [member for member in archive.getmembers() if member.name in files]
             archive.extractall(path=target_path, members=members)
+
+
+def load_file(path: str) -> Package:
+    file_io = open(path, 'rb')
+    return Package(file_io)
+
+
+def load_bytes(data: bytes) -> Package:
+    bytes_io = io.BytesIO(data)
+    return Package(bytes_io)
