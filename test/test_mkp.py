@@ -8,8 +8,16 @@ import pytest
 import mkp
 
 DIRECTORIES = [
-    'agents', 'checkman', 'checks', 'doc', 'inventory', 'notifications',
-    'pnp-templates', 'web', 'lib', 'agent_based',
+    'agent_based',
+    'agents',
+    'checkman',
+    'checks',
+    'doc',
+    'inventory',
+    'lib',
+    'notifications',
+    'pnp-templates',
+    'web',
 ]
 
 

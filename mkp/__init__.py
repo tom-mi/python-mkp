@@ -14,8 +14,16 @@ __version__ = get_versions()['version']
 del get_versions
 
 DIRECTORIES = (
-    'agents', 'checkman', 'checks', 'doc', 'inventory', 'notifications',
-    'pnp-templates', 'web', 'lib', 'agent_based',
+    'agent_based',
+    'agents',
+    'checkman',
+    'checks',
+    'doc',
+    'inventory',
+    'lib',
+    'notifications',
+    'pnp-templates',
+    'web',
 )
 
 
