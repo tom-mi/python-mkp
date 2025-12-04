@@ -19,7 +19,7 @@ pip install mkp
 
 ### Automatically pack mkp package
 
-Create a executable script in the the top directory, e.g. `dist.py`
+Create an executable script in the top directory, e.g. `dist.py`
 
 ```python
 #!/usr/bin/env python
@@ -94,12 +94,14 @@ mkp.pack_to_file(info, 'path/to/files', 'test-1.0.mkp')
 Exclude files when packing using [regular expressions](https://docs.python.org/3/library/re.html):
 
 ```python
+import mkp
 files = mkp.find_files('path/to/files', exclude_patterns=[r'.*\.pyc$', '__pycache__'])
 ```
 
 or
 
 ```python
+from mkp import dist
 dist({
 # ...
 }, exclude_patterns=[r'.*\.pyc$', '__pycache__'])
