@@ -88,6 +88,31 @@ def test_find_files_searches_all_directories(tmpdir):
         assert result[directory] == ['test']
 
 
+def test_find_files_ignores_files_outsider_known_directories(tmpdir):
+    # given
+    tmpdir.join('unknown_dir', 'test').write_binary(b'Foo', ensure=True)
+
+    # when
+    result = mkp.find_files(str(tmpdir))
+
+    # then
+    for directory in DIRECTORIES:
+        assert result[directory] == []
+
+
+def test_find_files_with_custom_directory_list(tmpdir):
+    # given
+    tmpdir.join('agent', 'test').write_binary(b'Foo', ensure=True)
+    tmpdir.join('custom_dir', 'test').write_binary(b'Foo', ensure=True)
+    tmpdir.join('other_dir', 'test').write_binary(b'Foo', ensure=True)
+
+    # when
+    result = mkp.find_files(str(tmpdir), directories=['custom_dir'])
+
+    # then
+    assert result['custom_dir'] == ['test']
+
+
 def test_find_files_searches_subdirectories(tmpdir):
     tmpdir.join('agents', 'special', 'agent_test').write_binary(b'hello', ensure=True)
 
@@ -120,6 +145,23 @@ def test_find_files_omits_files_matching_an_exclude_pattern(tmpdir):
 
     # then
     assert result['agents'] == ['file_to_exclude.not', 'file_to_include']
+
+
+def test_find_files_includes_all_regular_directories_for_mode_include_all(tmpdir):
+    # given
+    tmpdir.join('agents', 'test').write_binary(b'Foo', ensure=True)
+    tmpdir.join('custom_dir', 'test').write_binary(b'Foo', ensure=True)
+    tmpdir.join('other_dir', 'test').write_binary(b'Foo', ensure=True)
+    tmpdir.join('.hidden_dir', 'test').write_binary(b'Foo', ensure=True)
+
+    # when
+    result = mkp.find_files(str(tmpdir), directories=mkp.INCLUDE_ALL)
+
+    # then
+    assert result['agents'] == ['test']
+    assert result['custom_dir'] == ['test']
+    assert result['other_dir'] == ['test']
+    assert '.hidden_dir' not in result
 
 
 def test_pack_and_unpack_covers_all_known_directories(tmpdir):
@@ -169,6 +211,36 @@ def test_dist_with_exclude_patterns(tmpdir, sample_files, sample_info):
     assert package.info['author'] == 'John Doe'
     assert package.info['files']['agents'] == []
     assert package.info['files']['checks'] == ['foo']
+    assert package.info['num_files'] == 1
+
+
+def test_dist_with_include_all(tmpdir, sample_files, sample_info):
+    # given
+    tmpdir.join('custom_dir', 'custom_file').write_binary(b'Custom', ensure=True)
+
+    # when
+    mkp.dist(sample_info, str(tmpdir), directories=mkp.INCLUDE_ALL)
+
+    # then
+    assert tmpdir.join('dist', 'foo-42.mkp').exists()
+    package = mkp.load_file(str(tmpdir.join('dist', 'foo-42.mkp')))
+    assert package.info['author'] == 'John Doe'
+    assert package.info['files']['agents'] == ['special/agent_test']
+    assert package.info['files']['checks'] == ['foo']
+    assert package.info['files']['custom_dir'] == ['custom_file']
+    assert package.info['num_files'] == 3
+
+
+def test_dist_with_custom_directories(tmpdir, sample_files, sample_info):
+    # when
+    mkp.dist(sample_info, str(tmpdir), directories=['agents', 'custom_dir'])
+
+    # then
+    assert tmpdir.join('dist', 'foo-42.mkp').exists()
+    package = mkp.load_file(str(tmpdir.join('dist', 'foo-42.mkp')))
+    assert package.info['author'] == 'John Doe'
+    assert package.info['files']['agents'] == ['special/agent_test']
+    assert 'checks' not in package.info['files']
     assert package.info['num_files'] == 1
 
 

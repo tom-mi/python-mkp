@@ -77,34 +77,72 @@ output filename.
 import mkp
 
 info = {
-  'author': 'tom-mi',
-  'description': 'Test the system',
-  'download_url': 'http://example.com/',
-  'files': mkp.find_files('path/to/files'),
-  'name': 'test',
-  'title': 'Test',
-  'version': '1.0',
-  'version.min_required': '1.2.3',
+    'author': 'tom-mi',
+    'description': 'Test the system',
+    'download_url': 'http://example.com/',
+    'files': mkp.find_files('path/to/files'),
+    'name': 'test',
+    'title': 'Test',
+    'version': '1.0',
+    'version.min_required': '1.2.3',
 }
 mkp.pack_to_file(info, 'path/to/files', 'test-1.0.mkp')
 ```
 
 ### Advanced usage
 
-Exclude files when packing using [regular expressions](https://docs.python.org/3/library/re.html):
+#### Exclude files when packing using [regular expressions](https://docs.python.org/3/library/re.html):
 
 ```python
-import mkp
-files = mkp.find_files('path/to/files', exclude_patterns=[r'.*\.pyc$', '__pycache__'])
+from mkp import dist
+
+dist({ 
+    # ...
+}, exclude_patterns=[r'.*\.pyc$', '__pycache__'])
 ```
 
 or
 
 ```python
+import mkp
+
+files = mkp.find_files('path/to/files', exclude_patterns=[r'.*\.pyc$', '__pycache__'])
+```
+
+#### Include all subdirectories instead of just the "known" ones:
+
+```python
+from mkp import dist, INCLUDE_ALL
+
+dist({ 
+    # ...
+}, directories=INCLUDE_ALL)
+```
+
+or
+
+```python
+import mkp
+
+files = mkp.find_files('path/to/files', directories=mkp.INCLUDE_ALL)
+```
+
+#### Include only specific subdirectories:
+
+```python
 from mkp import dist
-dist({
-# ...
-}, exclude_patterns=[r'.*\.pyc$', '__pycache__'])
+
+dist({ 
+    # ...
+}, directories=['checks', 'agents'])
+```
+
+or
+
+```python
+import mkp
+
+files = mkp.find_files('path/to/files', directories=['checks', 'agents'])
 ```
 
 ## Development Setup

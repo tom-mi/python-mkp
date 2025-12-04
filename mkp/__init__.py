@@ -6,24 +6,33 @@ import os.path
 import pprint
 import tarfile
 import re
-from typing import List, Tuple, Dict, Any
+from typing import List, Tuple, Dict, Any, Union
 
 from ._version import get_versions
 
 __version__ = get_versions()['version']
 del get_versions
 
-_DIRECTORIES = [
+DIRECTORIES = (
     'agents', 'checkman', 'checks', 'doc', 'inventory', 'notifications',
     'pnp-templates', 'web', 'lib', 'agent_based',
-]
+)
+
+
+class IncludeAll:
+    """Marker to pass to find_files or dist to include all subdirectories."""
+
+
+INCLUDE_ALL = IncludeAll()
 
 _VERSION_PACKAGED = 'python-mkp'
-
 _DIST_DIR = 'dist'
 
 
-def dist(info: Dict[str, Any], path: str = None, exclude_patterns: List[str] = None):
+def dist(info: Dict[str, Any],
+         path: str = None,
+         directories: Union[List[str], IncludeAll] = DIRECTORIES,
+         exclude_patterns: List[str] = None):
     if exclude_patterns is None:
         exclude_patterns = []
 
@@ -31,7 +40,7 @@ def dist(info: Dict[str, Any], path: str = None, exclude_patterns: List[str] = N
         import __main__ as main
         path = os.path.dirname(os.path.realpath(main.__file__))
 
-    info['files'] = find_files(path, exclude_patterns=exclude_patterns)
+    info['files'] = find_files(path, directories=directories, exclude_patterns=exclude_patterns)
     info['num_files'] = sum(len(file_list) for file_list in info['files'].values())
     dist_dir = os.path.join(path, _DIST_DIR)
     filename = '{}-{}.mkp'.format(info['name'], info['version'])
@@ -42,11 +51,15 @@ def dist(info: Dict[str, Any], path: str = None, exclude_patterns: List[str] = N
     pack_to_file(info, path, os.path.join(dist_dir, filename))
 
 
-def find_files(path: str, exclude_patterns: List[str] = None):
+def find_files(path: str, directories: List[str] = DIRECTORIES, exclude_patterns: List[str] = None):
     if exclude_patterns is None:
         exclude_patterns = []
     result = {}
-    for directory in _DIRECTORIES:
+
+    if isinstance(directories, IncludeAll):
+        directories = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d)) and not d.startswith('.')]
+
+    for directory in directories:
         result[directory] = _find_files_in_directory(os.path.join(path, directory), exclude_patterns=exclude_patterns)
 
     return result
@@ -83,7 +96,7 @@ def pack_to_bytes(info: Dict[str, Any], path: str) -> bytes:
         _add_to_archive(archive, 'info', encode_info(info))
         _add_to_archive(archive, 'info.json', encode_info_json(info))
 
-        for directory in _DIRECTORIES:
+        for directory in DIRECTORIES:
             files = info['files'].get(directory, [])
             if not files:
                 continue
@@ -158,7 +171,7 @@ class Package(object):
         return self._json_info
 
     def extract_files(self, path: str):
-        for directory in _DIRECTORIES:
+        for directory in DIRECTORIES:
             self._extract_files_in_directory(path, directory)
 
     def _extract_files_in_directory(self, path: str, directory: str):
