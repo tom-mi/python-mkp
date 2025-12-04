@@ -36,6 +36,7 @@ setup(
     entry_points={
         'console_scripts': [
             'mkp-extract=mkp.cli.extract:main',
+            'mkp-init=mkp.cli.init:main',
         ],
     },
 )

@@ -19,7 +19,9 @@ pip install mkp
 
 ### Automatically pack mkp package
 
-Create an executable script in the top directory, e.g. `dist.py`
+Run `mkp-init` in an empty directory.
+
+This will create an executable script `dist.py`:
 
 ```python
 #!/usr/bin/env python
@@ -37,7 +39,7 @@ dist({
 })
 ```
 
-Create a directory structure as follows:
+and a directory structure similar to this:
 
 ```text
 ├── agents/
@@ -53,8 +55,10 @@ Create a directory structure as follows:
 └── dist.py
 ```
 
-Empty directories can be omitted. Running `dist.py` will pack all files in the
-directories listed above to a mkp package with the canonical name and the
+Now add your files to the respective directories and edit the metadata in
+`dist.py` as needed. Empty directories can be deleted.
+
+Running `./dist.py` will pack all files in the directories listed above to a mkp package with the canonical name and the
 specified metadata. The mkp file will be written to the `dist` directory.
 
 ### Extract mkp package using mkp-extract cli tool
