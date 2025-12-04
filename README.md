@@ -57,7 +57,15 @@ Empty directories can be omitted. Running `dist.py` will pack all files in the
 directories listed above to a mkp package with the canonical name and the
 specified metadata. The mkp file will be written to the `dist` directory.
 
-### Extract mkp package
+### Extract mkp package using mkp-extract cli tool
+
+```sh
+mkp-extract --help
+mkp-extract foo-1.0.mkp 
+mkp-extract foo-1.0.mkp --output-dir bar --no-prefix
+```
+
+### Extract mkp package programmatically
 
 ```python
 import mkp
@@ -96,7 +104,7 @@ mkp.pack_to_file(info, 'path/to/files', 'test-1.0.mkp')
 ```python
 from mkp import dist
 
-dist({ 
+dist({
     # ...
 }, exclude_patterns=[r'.*\.pyc$', '__pycache__'])
 ```
@@ -114,7 +122,7 @@ files = mkp.find_files('path/to/files', exclude_patterns=[r'.*\.pyc$', '__pycach
 ```python
 from mkp import dist, INCLUDE_ALL
 
-dist({ 
+dist({
     # ...
 }, directories=INCLUDE_ALL)
 ```
@@ -132,7 +140,7 @@ files = mkp.find_files('path/to/files', directories=mkp.INCLUDE_ALL)
 ```python
 from mkp import dist
 
-dist({ 
+dist({
     # ...
 }, directories=['checks', 'agents'])
 ```
