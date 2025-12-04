@@ -106,7 +106,7 @@ def pack_to_bytes(info: Dict[str, Any], path: str) -> bytes:
         _add_to_archive(archive, 'info', encode_info(info))
         _add_to_archive(archive, 'info.json', encode_info_json(info))
 
-        for directory in DIRECTORIES:
+        for directory in info['files'].keys():
             files = info['files'].get(directory, [])
             if not files:
                 continue
@@ -181,7 +181,7 @@ class Package(object):
         return self._json_info
 
     def extract_files(self, path: str):
-        for directory in DIRECTORIES:
+        for directory in self.info['files'].keys():
             self._extract_files_in_directory(path, directory)
 
     def _extract_files_in_directory(self, path: str, directory: str):

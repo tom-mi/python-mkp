@@ -172,6 +172,7 @@ def test_find_files_includes_all_regular_directories_for_mode_include_all(tmpdir
 
 
 def test_pack_and_unpack_covers_all_known_directories(tmpdir):
+    # given
     info = {
         'files': {key: ['test'] for key in DIRECTORIES},
     }
@@ -181,12 +182,35 @@ def test_pack_and_unpack_covers_all_known_directories(tmpdir):
     for directory in DIRECTORIES:
         source.join(directory, 'test').write_binary(b'Foo', ensure=True)
 
+    # when
     package_bytes = mkp.pack_to_bytes(info, str(source))
     package = mkp.load_bytes(package_bytes)
     package.extract_files(str(dest))
 
+    # then
     for directory in DIRECTORIES:
         assert dest.join(directory, 'test').exists()
+
+
+def test_pack_and_unpack_with_covers_custom_directories(tmpdir):
+    # given
+    info = {
+        'files': {'agents': ['test'], 'custom_dir': ['test']},
+    }
+    source = tmpdir.join('source').mkdir()
+    dest = tmpdir.join('dest').mkdir()
+
+    source.join('agents', 'test').write_binary(b'Foo', ensure=True)
+    source.join('custom_dir', 'test').write_binary(b'Bar', ensure=True)
+
+    # when
+    package_bytes = mkp.pack_to_bytes(info, str(source))
+    package = mkp.load_bytes(package_bytes)
+    package.extract_files(str(dest))
+
+    # then
+    assert dest.join('agents', 'test').exists()
+    assert dest.join('custom_dir', 'test').exists()
 
 
 def test_dist(tmpdir, sample_files, sample_info):
