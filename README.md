@@ -69,7 +69,9 @@ mkp-extract foo-1.0.mkp
 mkp-extract foo-1.0.mkp --output-dir bar --no-prefix
 ```
 
-### Extract mkp package programmatically
+### Advanced usage
+
+#### Extract mkp package programmatically
 
 ```python
 import mkp
@@ -79,7 +81,7 @@ print(package.info)
 package.extract_files('path/to/somewhere')
 ```
 
-### Pack files to mkp package
+#### Pack files to mkp package
 
 In contrast to `dist`, this provides the possibility to manually select the
 files by replacing `find_files`. It is also possible to choose a different
@@ -100,8 +102,6 @@ info = {
 }
 mkp.pack_to_file(info, 'path/to/files', 'test-1.0.mkp')
 ```
-
-### Advanced usage
 
 #### Exclude files when packing using [regular expressions](https://docs.python.org/3/library/re.html):
 
