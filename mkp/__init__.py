@@ -22,12 +22,15 @@ _VERSION_PACKAGED = 'python-mkp'
 _DIST_DIR = 'dist'
 
 
-def dist(info, path=None, blacklist=[]):
+def dist(info, path=None, exclude_patterns=None):
+    if exclude_patterns is None:
+        exclude_patterns = []
+
     if not path:
         import __main__ as main
         path = os.path.dirname(os.path.realpath(main.__file__))
 
-    info['files'] = find_files(path, blacklist)
+    info['files'] = find_files(path, exclude_patterns=exclude_patterns)
     info['num_files'] = sum(len(file_list) for file_list in info['files'].values())
     dist_dir = os.path.join(path, _DIST_DIR)
     filename = '{}-{}.mkp'.format(info['name'], info['version'])
@@ -48,15 +51,17 @@ def load_bytes(data):
     return Package(bytes_io)
 
 
-def find_files(path, blacklist=[]):
+def find_files(path, exclude_patterns=None):
+    if exclude_patterns is None:
+        exclude_patterns = []
     result = {}
     for directory in _DIRECTORIES:
-        result[directory] = _find_files_in_directory(os.path.join(path, directory), blacklist)
+        result[directory] = _find_files_in_directory(os.path.join(path, directory), exclude_patterns=exclude_patterns)
 
     return result
 
 
-def _find_files_in_directory(path, blacklist):
+def _find_files_in_directory(path, exclude_patterns):
     result = []
     for root, dirs, files in os.walk(path):
         for dirname in dirs:
@@ -69,7 +74,7 @@ def _find_files_in_directory(path, blacklist):
                 continue
             abspath = os.path.join(root, filename)
             relpath = os.path.relpath(abspath, start=path)
-            if any(re.search(pattern, abspath) for pattern in blacklist):
+            if any(re.search(pattern, abspath) for pattern in exclude_patterns):
                 continue
             result.append(relpath)
     return result
@@ -178,4 +183,3 @@ class Package(object):
         with tarfile.open(fileobj=dir_archive_file) as archive:
             members = [member for member in archive.getmembers() if member.name in files]
             archive.extractall(path=target_path, members=members)
-

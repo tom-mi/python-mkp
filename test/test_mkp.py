@@ -1,5 +1,6 @@
 import ast
 import io
+import re
 import tarfile
 
 import pytest
@@ -105,6 +106,22 @@ def test_find_files_ignores_hidden_files_and_dirs(tmpdir):
     assert result['agents'] == []
 
 
+def test_find_files_omits_files_matching_an_exclude_pattern(tmpdir):
+    # given
+    a = re.compile(r'.*\.pyc')
+    exclude_patterns = [r'.*file_to_exclude$', r'dir-to-omit/.*']
+    tmpdir.join('agents', 'file_to_include').write_binary(b'hello', ensure=True)
+    tmpdir.join('agents', 'file_to_exclude').write_binary(b'hello', ensure=True)
+    tmpdir.join('agents', 'file_to_exclude.not').write_binary(b'hello', ensure=True)
+    tmpdir.join('agents', 'dir-to-omit', 'file_inside').write_binary(b'hello', ensure=True)
+
+    # when
+    result = mkp.find_files(str(tmpdir), exclude_patterns=exclude_patterns)
+
+    # then
+    assert result['agents'] == ['file_to_exclude.not', 'file_to_include']
+
+
 def test_pack_and_unpack_covers_all_known_directories(tmpdir):
     info = {
         'files': {key: ['test'] for key in DIRECTORIES},
@@ -137,6 +154,22 @@ def test_dist(tmpdir, sample_files, sample_info):
     assert package.info['version.packaged'] == 'python-mkp'
     assert package.info['version.min_required'] == '1.2.6p5'
     assert package.info['version.usable_until'] is None
+
+
+def test_dist_with_exclude_patterns(tmpdir, sample_files, sample_info):
+    # given
+    exclude_patterns = [r'special/.*']
+
+    # when
+    mkp.dist(sample_info, str(tmpdir), exclude_patterns=exclude_patterns)
+
+    # then
+    assert tmpdir.join('dist', 'foo-42.mkp').exists()
+    package = mkp.load_file(str(tmpdir.join('dist', 'foo-42.mkp')))
+    assert package.info['author'] == 'John Doe'
+    assert package.info['files']['agents'] == []
+    assert package.info['files']['checks'] == ['foo']
+    assert package.info['num_files'] == 1
 
 
 def test_dist_json(tmpdir, sample_files, sample_info):

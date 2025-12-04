@@ -6,7 +6,9 @@
 
 Pack or unpack [Check_MK](https://mathias-kettner.de/check_mk.html) mkp files.
 
-The purpose of this library is to generate mkp files from source without having to set up a complete Check\_MK instance. It is not intended for installing mkp files to a Check\_MK site.
+The purpose of this library is to generate mkp files from source without having to set up a complete Check\_MK instance.
+It is not intended for installing mkp files to a Check\_MK site.
+
 ## Installation
 
     pip install mkp
@@ -77,14 +79,28 @@ output filename.
     }
     mkp.pack_to_file(info, 'path/to/files', 'test-1.0.mkp')
 
+### Advanced usage
+
+Exclude files when packing using [regular expressions](https://docs.python.org/3/library/re.html):
+
+    files = mkp.find_files('path/to/files', exclude_patterns=[r'.*\.pyc$', '__pycache__'])
+
+or
+
+    dist({
+    # ...
+    }, exclude_patterns=[r'.*\.pyc$', '__pycache__'])
+
 ## Development Setup
 
 Install development dependencies into local environment (`${repo_root}/.venv`):
+
 ```
 scripts/bootstrap
 ```
 
 Run all tests with tox:
+
 ```
 scripts/test
 # or
@@ -93,12 +109,14 @@ tox
 ```
 
 Run tests of current python version with pytest:
+
 ```
 source .venv/bin/activate
 pytest
 ```
 
 Release new version:
+
 ```
 git tag <new_version>
 git push --tags
